@@ -45,6 +45,21 @@ namespace Shibari.Sub.Source.BthPS3.Core
                     Marshal.WriteByte(OutputReportBuffer, 11, _ledOffsets[index]);
 
                 //
+                // Fake DS3 Gasia/Batoh hacks
+                // MAC address starts with 00:26:5C:xx:xx:xx
+                //
+                var ClientAddressPrefix = ClientAddress.GetAddressBytes();
+                if (ClientAddressPrefix[0] == 0x00 &&
+                    ClientAddressPrefix[1] == 0x26 &&
+                    ClientAddressPrefix[2] == 0x5C)
+                {
+                    Log.Warning("Fake DS3 Gasia/Batoh controller detected, applying hacks..");
+                    Marshal.WriteByte(OutputReportBuffer, 0, 0xA2);
+                    Marshal.WriteByte(OutputReportBuffer, 3, 0xFF);
+                    Marshal.WriteByte(OutputReportBuffer, 5, 0x00);
+                }
+
+                //
                 // Send the start command to remote device
                 // 
                 var unmanagedBuffer = Marshal.AllocHGlobal(_hidEnableCommand.Length);
